@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/password-change.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card slide-in-left">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Create Your Account</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center mb-4 mb-md-0">
+                            <div class="avatar-container mb-3 bounce-in">
+                                <img src="{% static 'image/default.jpg'%}"
+                                     alt="Default Avatar"
+                                     class="img-fluid rounded-circle">
+                            </div>
+                            <h5 class="text-gradient">Join Homework Tracker</h5>
+                            <p class="text-muted">Manage your assignments, track deadlines, and boost productivity</p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <form method="post" novalidate id="registerForm">
+                                {% csrf_token %}
+
+
+                                {% for field in form %}
+                                    <div class="mb-3">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            {% if field.name == 'username' %}
+                                                <i class="fas fa-user me-2"></i>
+                                            {% elif field.name == 'email' %}
+                                                <i class="fas fa-envelope me-2"></i>
+                                            {% elif field.name == 'password1' or field.name == 'password2' %}
+                                                <i class="fas fa-lock me-2"></i>
+                                            {% else %}
+                                                <i class="fas fa-edit me-2"></i>
+                                            {% endif %}
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        {% if field.help_text %}
+                                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                                        {% endif %}
+                                        {% for error in field.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+
+                                <!-- Password Strength Indicator -->
+                                <div class="mb-3">
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" id="passwordStrengthBar" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-muted" id="passwordStrengthText">Password strength: Very weak</small>
+                                </div>
+
+                                <!-- Terms and Conditions -->
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-check-circle me-2"></i>Create Account
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <p class="mb-0">Already have an account?
+                            <a href="{% url 'login' %}" class="text-decoration-none fw-bold">
+                                <i class="fas fa-sign-in-alt me-1"></i>Sign In Here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4 slide-in-right security-tips-card">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="fas fa-shield-alt me-2"></i>Password Security Tips
+                    </h6>
+                    <ul class="password-hints mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Use at least 8 characters
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Mix letters, numbers, and symbols
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Avoid common words and personal information
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Consider using a password manager
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/password_set_change.js' %}"></script>
+{% endblock %}

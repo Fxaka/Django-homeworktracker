@@ -1,0 +1,168 @@
+/* static/css/calendar.css */
+/* Styles for the simple assignment calendar */
+
+/* Calendar container */
+.simple-calendar {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Weekday headers */
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.calendar-weekdays div {
+    padding: 0.5rem;
+}
+
+/* Grid of days */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+/* Individual day cell */
+.calendar-day {
+    height: 60px;
+    padding: 4px;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    background-color: white;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Special day states */
+.calendar-day.today {
+    background-color: #e3f2fd;
+    border-color: #4361ee;
+}
+
+.calendar-day.other-month {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+}
+
+.calendar-day.has-assignment {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
+}
+
+/* Day number */
+.calendar-day-number {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+/* Events inside a day */
+.calendar-day-events {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.calendar-event {
+    font-size: 0.7rem;
+    padding: 1px 3px;
+    border-radius: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Event status colors */
+.event-completed { background-color: #c8e6c9; color: #2e7d32; }
+.event-overdue   { background-color: #ffcdd2; color: #c62828; }
+.event-pending  { background-color: #bbdefb; color: #1565c0; }
+
+/* Calendar navigation controls */
+#calendarControls {
+    display: flex;
+    align-items: center;
+}
+
+#currentMonth {
+    font-weight: 600;
+    min-width: 140px;
+    text-align: center;
+}
+
+/* Assignment list item (used in tooltips or side panels) */
+.assignment-item {
+    transition: all 0.2s ease;
+    border-color: #e9ecef !important;
+}
+
+.assignment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #4361ee !important;
+}
+
+/* Tooltip for event details */
+.calendar-event-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    min-width: 200px;
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: none;
+}
+
+.calendar-day:hover .calendar-event-tooltip {
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .calendar-day {
+        height: 50px;
+    }
+    .calendar-day-number {
+        font-size: 0.8rem;
+    }
+    .calendar-event {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .calendar-day {
+        height: 40px;
+        padding: 2px;
+    }
+    .calendar-day-number {
+        font-size: 0.75rem;
+    }
+    .calendar-event {
+        display: none; /* Hide events on very small screens */
+    }
+}

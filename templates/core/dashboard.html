@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<!-- 日历CSS -->
+<link href="{% static 'css/calendar.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div id="urgentDeadlineReminder"
+         class="alert alert-danger d-none position-fixed top-0 end-0 m-3 shadow"
+         style="z-index: 1050; max-width: 400px; display: none;">
+          <strong> Urgent! Deadline Approaching</strong><br>
+          "<span id="reminderTitle"></span>"<br>
+          <small>Due in <span id="reminderCountdown"></span></small>
+    </div>
+
+<div class="container mt-4">
+    <h2 class="mb-4">Dashboard</h2>
+
+    <!-- KPI 卡片 -->
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-primary h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-tasks fa-2x text-primary"></i>
+                    </div>
+                    <h5 class="card-title text-primary mb-2">Total Assignments</h5>
+                    <p class="display-4 fw-bold mb-0">{{ total_assignments }}</p>
+                    <small class="text-muted">All assignments</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-success h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                    <h5 class="card-title text-success mb-2">Completed</h5>
+                    <p class="display-4 fw-bold mb-0">{{ completed_assignments }}</p>
+                    <small class="text-muted">Finished assignments</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-danger h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-clock fa-2x text-danger"></i>
+                    </div>
+                    <h5 class="card-title text-danger mb-2">Overdue</h5>
+                    <p class="display-4 fw-bold mb-0">{{ overdue_assignments }}</p>
+                    <small class="text-muted">Past due date</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 整体完成率 -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Overall Completion Rate</h4>
+        </div>
+        <div class="card-body">
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                     role="progressbar"
+                     style="width: {{ completion_rate }}%"
+                     id="completionBar"
+                     data-width="{{ completion_rate }}">
+                    {{ completion_rate }}%
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">{{ completed_assignments }} of {{ total_assignments }} assignments completed</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图表和近期作业 -->
+    <div class="row mb-4">
+        <!-- 左侧：课程完成率图表 -->
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100 border-0 shadow">
+                <div class="card-header bg-white border-bottom-0 pb-3">
+                    <h4 class="mb-0"><i class="fas fa-chart-bar me-2 text-info"></i>Completion by Course</h4>
+                </div>
+                <div class="card-body">
+                    {% if course_chart_data %}
+                        <div style="height: 300px;">
+                            <canvas id="completionChart"></canvas>
+                        </div>
+
+                        <script>
+                        // 将 Django 数据转换为 JavaScript 对象
+                        window.courseChartData = [
+                            {% for course in course_chart_data %}
+                            {
+                                course_name: "{{ course.course_name|escapejs }}",
+                                completion_rate: {{ course.completion_rate }}
+                            }{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        ];
+                        </script>
+
+                        <!-- 课程详情表格 -->
+                        <div class="mt-4">
+                            <h5>Course Details:</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm" id="courseTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Course</th>
+                                            <th>Completion Rate</th>
+                                            <th>Progress</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for course in course_chart_data %}
+                                        <tr>
+                                            <td>{{ course.course_name }}</td>
+                                            <td>{{ course.completion_rate }}%</td>
+                                            <td>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-info"
+                                                         style="width: {{ course.completion_rate }}%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-bar fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">No course data available</p>
+                            <p class="text-muted small">Assign courses to your assignments to see completion rates.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：近期作业 -->
+<div class="col-lg-4 mb-4">
+    <div class="card h-100 border-0 shadow">
+        <div class="card-header bg-white border-bottom-0 pb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-clipboard-list me-2 text-success"></i>Upcoming Assignments</h4>
+                <a href="{% url 'assignments:assignment_list' %}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="upcoming-list">
+                {% if upcoming_assignments %}
+                    {% for assignment in upcoming_assignments %}
+                    <div class="assignment-item mb-3 p-3 border rounded">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1 fw-bold">
+                                    <a href="{% url 'assignments:assignment_detail' assignment.pk %}"
+                                       class="text-decoration-none text-dark">
+                                        {{ assignment.title|truncatechars:30 }}
+                                    </a>
+                                </h6>
+                                {% if assignment.course %}
+                                    <span class="badge bg-info">{{ assignment.course.name }}</span>
+                                {% endif %}
+                            </div>
+                            <span class="badge {% if assignment.completed %}bg-success{% elif assignment.is_overdue %}bg-danger{% else %}bg-warning{% endif %}">
+                                {% if assignment.completed %}Done{% elif assignment.is_overdue %}Overdue{% else %}Pending{% endif %}
+                            </span>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                Due: {{ assignment.due_date|date:"M d, Y" }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-check fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No upcoming assignments</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- 居中日历 -->
+<div class="row mb-4 justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-white border-bottom-0 pb-3">
+                <div class="d-flex justify-content-between align-items-center">
+    <h4 class="mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Assignment Calendar</h4>
+
+        <div class="d-flex align-items-center">
+            <!-- 日历控制部分 -->
+            <div class="d-flex align-items-center me-3">
+                <button class="btn btn-sm btn-outline-primary" id="prevMonth">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="mx-2 text-center" id="currentMonth" style="min-width: 120px;"></span>
+                <button class="btn btn-sm btn-outline-primary" id="nextMonth">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary ms-3" id="todayBtn">
+                    Today
+                </button>
+            </div>
+
+            <!-- 导出按钮（用 margin 分离） -->
+            <a href="{% url 'assignments:export_calendar' %}"
+                class="btn btn-outline-secondary btn-sm">
+                Export to Calendar (.ics)
+            </a>
+        </div>
+    </div>
+            </div>
+            <div class="card-body">
+                <div class="simple-calendar">
+                    <!-- 星期标题 -->
+                    <div class="calendar-weekdays">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+
+                    <!-- 日历格子 -->
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- 通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 日历数据容器 -->
+<div id="calendarData" data-events='{{ calendar_events_json|default:"[]" }}' style="display: none;"></div>
+{{ upcoming_assignments_for_reminder_json|json_script:"upcoming-assignments-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="{% static 'js/chart.umd.js' %}"></script>
+
+<!-- Dashboard JS -->
+<script src="{% static 'js/dashboard.js' %}"></script>
+
+<!-- 日历JS -->
+<script src="{% static 'js/calendar.js' %}"></script>
+{% endblock %}

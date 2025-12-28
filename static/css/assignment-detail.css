@@ -1,0 +1,82 @@
+/* static/css/assignment-detail.css */
+/* Styles for the assignment detail page */
+
+/* Icon container */
+.icon-container {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent shrinking in flex layouts */
+}
+
+/* Light background variants for visual emphasis */
+.bg-primary-light { background-color: rgba(67, 97, 238, 0.1); }   /* Primary */
+.bg-success-light { background-color: rgba(76, 175, 80, 0.1); }  /* Completed */
+.bg-warning-light { background-color: rgba(255, 193, 7, 0.1); }  /* Overdue */
+.bg-info-light    { background-color: rgba(76, 201, 240, 0.1); }  /* Upcoming */
+
+/* Gradient backgrounds for grade cards */
+.bg-gradient-success {
+    background: linear-gradient(to right, var(--success-color, #4caf50), #2e7d32);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(to right, var(--accent-color, #03a9f4), #00bcd4);
+}
+
+/* Grade and progress display */
+.grade-display {
+    position: relative;
+}
+
+.progress.progress-large {
+    height: 20px;
+    border-radius: 10px;
+}
+
+.progress.progress-large .progress-bar {
+    border-radius: 10px;
+}
+
+/* Description styling */
+.description-container {
+    background-color: var(--light-color, #f8f9fa);
+    border-radius: 12px;
+    padding: 1.5rem;
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+/* No-grade placeholder */
+.no-grade-card .grade-icon {
+    font-size: 4rem;
+    opacity: 0.3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .icon-container {
+        width: 50px;
+        height: 50px;
+        padding: 12px !important;
+    }
+    .display-1 {
+        font-size: 3rem;
+    }
+    .grade-icon {
+        font-size: 3rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .icon-container {
+        width: 45px;
+        height: 45px;
+        padding: 10px !important;
+    }
+    .display-1 {
+        font-size: 2.5rem;
+    }
+}

@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Assignments{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.list-group-item {
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页眉 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-tasks me-2"></i>My Assignments</h2>
+            <p class="text-muted mb-0">Manage and track all your assignments</p>
+        </div>
+        <a href="{% url 'assignments:assignment_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>New Assignment
+        </a>
+    </div>
+
+    <!-- 筛选表单 -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body p-3">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text"
+                               name="q"
+                               value="{{ request.GET.q|default:'' }}"
+                               class="form-control border-start-0"
+                               placeholder="Search assignments...">
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <select name="course" class="form-select">
+                        <option value="">All Courses</option>
+                        <option value="uncategorized" {% if selected_course_filter == 'uncategorized' %}selected{% endif %}>
+                            Uncategorized
+                        </option>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}" {% if selected_course_filter|add:"0" == course.id %}selected{% endif %}>
+                            {{ course.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 作业列表 -->
+    {% if assignments %}
+    <div class="list-group">
+        {% for a in assignments %}
+        <div class="list-group-item list-group-item-action mb-3 border rounded-3 shadow-sm">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="mb-1">
+                            <a href="{% url 'assignments:assignment_detail' a.pk %}" class="text-decoration-none text-dark">
+                                {{ a.title }}
+                            </a>
+                            {% if a.completed %}
+                            <span class="badge bg-success ms-2" data-assignment-badge="{{ a.pk }}">
+                                <i class="fas fa-check me-1"></i>Completed
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark ms-2" data-assignment-badge="{{ a.pk }}">
+                                <i class="fas fa-clock me-1"></i>Pending
+                            </span>
+                            {% endif %}
+                        </h5>
+
+                        {% if a.grade %}
+                        <div class="text-end">
+                            <small class="text-muted">Grade</small>
+                            <div class="fw-bold">{{ a.grade.score }} / {{ a.grade.max_score }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                <small class="text-muted">Due: <strong>{{ a.due_date|date:"Y-m-d H:i" }}</strong></small>
+                            </div>
+                            {% if a.course %}
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-book text-muted me-2"></i>
+                                <span class="text-muted">{{ a.course.name }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 按钮组 -->
+                    <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top">
+                        <a href="{% url 'assignments:assignment_detail' a.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                        <a href="{% url 'assignments:assignment_edit' a.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a href="{% url 'assignments:assignment_delete' a.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                        <a href="javascript:void(0);"
+                           class="btn btn-sm {% if a.completed %}btn-warning{% else %}btn-success{% endif %} toggle-complete"
+                           data-url="{% url 'assignments:assignment_toggle' a.pk %}"
+                           data-assignment-id="{{ a.pk }}">
+                            <i class="fas fa-{% if a.completed %}undo{% else %}check{% endif %} me-1"></i>
+                            {% if a.completed %}Reopen{% else %}Complete{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-clipboard-list text-muted" style="font-size: 3rem;"></i>
+        <h4 class="text-muted mt-3">No assignments found</h4>
+        <p class="text-muted">Get started by creating your first assignment</p>
+        <a href="{% url 'assignments:assignment_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create First Assignment
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/assignment_list.js' %}"></script>
+{% endblock %}

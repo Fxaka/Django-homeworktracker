@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Record Grade - {{ assignment.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/record_grade.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 fade-in">
+    <!-- 页眉 -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h2 class="mb-1">
+                <i class="fas fa-chart-line me-2 text-gradient"></i>
+                {% if grade %}Edit Grade{% else %}Record Grade{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if grade %}
+                    Update grade for "{{ assignment.title }}"
+                {% else %}
+                    Record grade for "{{ assignment.title }}"
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'assignments:assignment_detail' assignment.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Assignment
+        </a>
+    </div>
+
+    <!-- 主卡片 -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Grade Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate id="gradeForm">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Please correct the errors below.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endif %}
+
+                        <!-- 分数信息 -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-check-circle me-2 text-primary"></i>Score Obtained
+                                </label>
+                                <div class="input-group">
+                                    {{ form.score }}
+                                    <span class="input-group-text">points</span>
+                                </div>
+                                {% if form.score.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-times-circle"></i>{{ form.score.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label  class="form-label">
+                                    <i class="fas fa-chart-bar me-2 text-info"></i>Maximum Score
+                                </label>
+                                <div class="input-group">
+                                    {{ form.max_score }}
+                                    <span class="input-group-text">points</span>
+                                </div>
+                                {% if form.max_score.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-times-circle"></i>{{ form.max_score.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- 分数预览 -->
+                        <div class="mb-4 grade-preview">
+                            <h6 class="mb-3">
+                                <i class="fas fa-calculator me-2 text-warning"></i>Grade Preview
+                            </h6>
+                            <div class="preview-container text-center p-4 rounded">
+                                <div class="display-6 fw-bold text-success mb-2" id="percentagePreview">0%</div>
+                                <div class="h5 mb-3">
+                                    <span class="badge bg-light text-dark p-2" id="fractionPreview">0 / 0</span>
+                                </div>
+                                <div class="progress progress-preview mb-3">
+                                    <div class="progress-bar bg-gradient-success" id="progressBar" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted" id="gradeLabel">Enter scores to see grade</small>
+                            </div>
+                        </div>
+
+                        <!-- 评论 -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-comment me-2 text-primary"></i>Comments
+                                <span class="text-muted small">(Optional)</span>
+                            </label>
+                            {{ form.comment }}
+                            {% if form.comment.errors %}
+                            <div class="error-message">
+                                <i class="fas fa-times-circle"></i>{{ form.comment.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Add any feedback or notes about this grade
+                            </div>
+                        </div>
+
+                        <!-- 表单按钮 -->
+                        <div class="form-actions">
+                            <a href="{% url 'assignments:assignment_detail' assignment.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {% if grade %}Update Grade{% else %}Confirm Grade{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/record_grade.js' %}"></script>
+{% endblock %}
